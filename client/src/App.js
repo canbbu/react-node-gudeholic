@@ -38,9 +38,9 @@ class App extends Component {
   componentDidMount(){
     this.timer = setInterval(this.progress, 20)
     //circularProcess 확인용
-    // this.callApi()
-    // .then(res => this.setState({customers:res}))
-    // .catch(err => console.log(err))
+    this.callApi()
+    .then(res => this.setState({customers:res}))
+    .catch(err => console.log(err))
   }
 
   callApi = async () =>{
@@ -64,7 +64,8 @@ class App extends Component {
               <TableCell>아이디</TableCell>
               <TableCell>이미지</TableCell>
               <TableCell>이름</TableCell>
-              <TableCell>나이</TableCell>
+              <TableCell>생년월일</TableCell>
+              <TableCell>성별</TableCell>
               <TableCell>직업</TableCell>
             </TableRow>
           </TableHead>
@@ -73,9 +74,10 @@ class App extends Component {
               <Customer
                 key={customer.id}
                 id={customer.id}
-                img={customer.img}
+                image={customer.image}
                 name={customer.name}
-                age={customer.age}
+                birthday={customer.birthday}
+                gender={customer.gender}
                 job={customer.job}
               />
             )) : 
