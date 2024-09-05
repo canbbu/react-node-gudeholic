@@ -4,9 +4,6 @@ import TableCell from '@mui/material/TableCell';
 
 class Customer extends React.Component{
     render (){
-        console.log("id "+ this.props.id)
-        console.log("id "+ this.props.image)
-        console.log("id "+ this.props.birthday)
         return (
             <TableRow>
                 <TableCell>{this.props.id}</TableCell>
