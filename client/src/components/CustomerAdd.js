@@ -35,7 +35,17 @@ class CustomerAdd extends React.Component {
         })
         .catch((error) => {
             console.error("There was an error!", error);
-        });
+        })
+
+        this.setState({
+            file: null,
+            userName : '',
+            birthday : '',
+            gender : '',
+            job : '',
+            fileName : '',
+        })
+        //window.location.reload()
     }
 
     addCustomer = () => {
