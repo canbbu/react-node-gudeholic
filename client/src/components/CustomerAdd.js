@@ -31,7 +31,8 @@ class CustomerAdd extends React.Component {
         e.preventDefault(); // 오타 수정 (preventDefualt -> preventDefault)
         this.addCustomer()
         .then((response) => {
-            console.log(response.data);
+            console.log(response.data)
+            this.props.stateRefresh()
         })
         .catch((error) => {
             console.error("There was an error!", error);
@@ -45,7 +46,7 @@ class CustomerAdd extends React.Component {
             job : '',
             fileName : '',
         })
-        //window.location.reload()
+        window.location.reload()
     }
 
     addCustomer = () => {
