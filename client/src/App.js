@@ -12,6 +12,13 @@ import Paper from '@mui/material/Paper';
 import CircularProgress from '@mui/material/CircularProgress'
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import './App.css';
+import AppBar from '@mui/material/AppBar';
+import Box from '@mui/material/Box';
+import Toolbar from '@mui/material/Toolbar';
+import Typography from '@mui/material/Typography';
+import Button from '@mui/material/Button';
+import IconButton from '@mui/material/IconButton';
+import MenuIcon from '@mui/icons-material/Menu';
 
 
 const theme = createTheme()
@@ -27,6 +34,16 @@ const styles ={
   },
   progress:{
     marginTop : theme.spacing.unit * 2,
+  },
+  menu:{
+    marginTop: 15,
+    marginBottom: 15,
+    display : 'flex',
+    justifyContent: 'center',
+  },
+  paper:{
+    marginLeft :18,
+    marginRight : 18
   }
 };
 
@@ -72,19 +89,35 @@ class App extends Component {
 
   render(){
     const {classes} = this.props;
+    const cellList = ["번호", "프로필 이미지", "이름", "생년월일", "성별", "직업","설정"]
     return (
-      <div>
-        <Paper className={classes.root}>
+      <div className={classes.root}>
+        <Box sx={{ flexGrow: 1 }}>
+          <AppBar position="static">
+            <Toolbar>
+              <IconButton
+                size="large"
+                edge="start"
+                color="inherit"
+                aria-label="menu"
+                sx={{ mr: 2 }}
+              >
+                <MenuIcon />
+              </IconButton>
+              <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+                고객 관리 시스템
+              </Typography>
+              <Button color="inherit">Login</Button>
+            </Toolbar>
+          </AppBar>
+        </Box>
+        <Paper className={classes.paper}>
           <Table className={classes.table}>
             <TableHead>
               <TableRow>
-                <TableCell>아이디</TableCell>
-                <TableCell>이미지</TableCell>
-                <TableCell>이름</TableCell>
-                <TableCell>생년월일</TableCell>
-                <TableCell>성별</TableCell>
-                <TableCell>직업</TableCell>
-                <TableCell>설정</TableCell>
+                {cellList.map(c =>{
+                  return <TableCell className={classes.tableHead}>{c}</TableCell>
+                })}
               </TableRow>
             </TableHead>
             <TableBody>
@@ -109,7 +142,9 @@ class App extends Component {
             </TableBody>
           </Table>
         </Paper>
-        <CustomerAdd/>
+        <div className={classes.menu}>
+          <CustomerAdd/>
+        </div>
       </div>
     )
   }
