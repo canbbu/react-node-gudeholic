@@ -27,7 +27,7 @@ const multer = require('multer')
 const upload = multer({dest: './upload'})
 
 app.get('/api/customers', (req,res) =>{
-  const query = "select * from CUSTOMER"
+  const query = "select * from CUSTOMER WHERE isDeleted = 0"
   connection.query(
     query, (err, rows, fields) => {
       res.send(rows)
@@ -44,13 +44,23 @@ app.post('/api/customers', upload.single('image'), (req,res) => {
     image = './image'+ req.file.filename
   }
   // 이후 데이터 처리
-  let sql = 'INSERT INTO CUSTOMER VALUES (null, ?, ?, ?, ?, ?)'
+  let sql = 'INSERT INTO CUSTOMER VALUES (null, ?, ?, ?, ?, ?, now(), 0)'
   let name = req.body.name
   let birthday = req.body.birthday
   let gender = req.body.gender
   let job = req.body.job
   let params = [image, name, birthday, gender, job]
   connection.query(sql, params,
+    (err, rows, fields) => {
+      res.send(rows)
+    }
+  )
+})
+
+app.delete('/api/customers/:id', (req,res) => {
+  let sql = 'UPDATE CUSTOMER SET isDeleted = 1 WHERE id = ?'
+  let params = [req.params.id]
+  connection.query(sql, params, 
     (err, rows, fields) => {
       res.send(rows)
     }
