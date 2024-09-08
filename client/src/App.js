@@ -1,16 +1,5 @@
-import React, { Component } from 'react';
-import Customer from './components/Customer';
-import CustomerAdd from './components/CustomerAdd';
-import Table from '@mui/material/Table';
-import TableRow from '@mui/material/TableRow';
-import TableCell from '@mui/material/TableCell';
-import TableHead from '@mui/material/TableHead';
-import TableBody from '@mui/material/TableBody';
-import { withStyles } from '@mui/styles';
-import Paper from '@mui/material/Paper';
-import CircularProgress from '@mui/material/CircularProgress';
-import { createTheme, ThemeProvider } from '@mui/material/styles';
-import './App.css';
+import React from 'react'
+import AppLogin from './AppLogin';
 import AppBar from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
 import Toolbar from '@mui/material/Toolbar';
@@ -21,223 +10,219 @@ import MenuIcon from '@mui/icons-material/Menu';
 import InputBase from '@mui/material/InputBase';
 import SearchIcon from '@mui/icons-material/Search';
 import { styled, alpha } from '@mui/material/styles';
+import { withStyles } from '@mui/styles';
+import AdminLogin from './components/AdminLogin';
+import { TableCell } from '@mui/material';
+import backgroundImage from './assets/frontendPhoto.jpg'; // Correct path
 
-// Create a theme with createTheme
-const theme = createTheme({
-  // Your theme configuration
-});
 
 // Define styles
 const styles = theme => ({
-  root: {
-    width: '100%',
-    marginTop: theme.spacing(3),
-    overflowX: 'auto',
-  },
-  table: {
-    minWidth: 1080,
-  },
-  progress: {
-    marginTop: theme.spacing(2),
-  },
-  menu: {
-    marginTop: 15,
-    marginBottom: 15,
-    display: 'flex',
-    justifyContent: 'center',
-  },
-  paper: {
-    marginLeft: 18,
-    marginRight: 18,
-    minWidth: 1080,
-  },
-});
+    root: {
+      width: '100%',
+      marginTop: theme.spacing(3),
+      overflowX: 'auto',
+    },
+    backgroundImage: {
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        width: '100%',
+        height: '100%',
+        backgroundImage: 'url(../public/logo192.png)',
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        zIndex: -1,
+        filter: 'blur(0)', // Default filter for logged-in state
+        transition: 'filter 0.3s ease, opacity 0.3s ease',
+      },
+      backgroundImageLoggedIn: {
+        filter: 'blur(5px)', // Apply blur effect when logged in
+        opacity: 0.5, // Apply transparency when logged in
+      },
+  });
 
 // Styled components
 const Search = styled('div')(({ theme }) => ({
-  position: 'relative',
-  borderRadius: theme.shape.borderRadius,
-  backgroundColor: alpha(theme.palette.common.white, 0.15),
-  '&:hover': {
-    backgroundColor: alpha(theme.palette.common.white, 0.25),
-  },
-  marginLeft: 0,
-  width: '100%',
-  [theme.breakpoints.up('sm')]: {
-    marginLeft: theme.spacing(1),
-    width: 'auto',
-  },
-}));
-
-const SearchIconWrapper = styled('div')(({ theme }) => ({
-  padding: theme.spacing(0, 2),
-  height: '100%',
-  position: 'absolute',
-  pointerEvents: 'none',
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-}));
-
-const StyledInputBase = styled(InputBase)(({ theme }) => ({
-  color: 'inherit',
-  width: '100%',
-  '& .MuiInputBase-input': {
-    padding: theme.spacing(1, 1, 1, 0),
-    paddingLeft: `calc(1em + ${theme.spacing(4)})`,
-    transition: theme.transitions.create('width'),
+    position: 'relative',
+    borderRadius: theme.shape.borderRadius,
+    backgroundColor: alpha(theme.palette.common.white, 0.15),
+    '&:hover': {
+      backgroundColor: alpha(theme.palette.common.white, 0.25),
+    },
+    marginLeft: 0,
+    width: '100%',
     [theme.breakpoints.up('sm')]: {
-      width: '12ch',
-      '&:focus': {
-        width: '20ch',
+      marginLeft: theme.spacing(1),
+      width: 'auto',
+    },
+  }));
+  
+  const SearchIconWrapper = styled('div')(({ theme }) => ({
+    padding: theme.spacing(0, 2),
+    height: '100%',
+    position: 'absolute',
+    pointerEvents: 'none',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+  }));
+  
+  const StyledInputBase = styled(InputBase)(({ theme }) => ({
+    color: 'inherit',
+    width: '100%',
+    display: 'flex', // Flexbox 사용
+    alignItems: 'center', // 수직 중앙 정렬
+    justifyContent: 'center', // 수평 중앙 정렬
+    '& .MuiInputBase-input': {
+      padding: theme.spacing(1, 1, 1, 0),
+      paddingLeft: `calc(1em + ${theme.spacing(4)})`,
+      transition: theme.transitions.create('width'),
+      [theme.breakpoints.up('sm')]: {
+        width: '12ch',
+        '&:focus': {
+          width: '20ch',
+        },
       },
     },
-  },
-}));
+  }));
 
-class App extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      customers: '',
-      completed: 0,
-      searchKeyword: '',
-    };
-  }
+class App extends React.Component{
 
-  stateRefresh = () => {
-    this.setState({
-      customers: '',
-      completed: 0,
-      searchKeyword : '',
-    });
-    this.callApi()
-      .then((res) => this.setState({ customers: res }))
-      .catch((err) => console.log(err));
-  };
+    constructor(props) {
+        super(props);
+        this.state = {
+            searchKeyword: '',
+            login: false,
+            username: '',
+            password: '',
+            errorMessage: '',
+            customers: [],
+        };
+      }
+    
+      handleValueChange = (e) => {
+        this.setState({
+          [e.target.name]: e.target.value,
+        });
+      };
 
-  componentDidMount() {
-    this.timer = setInterval(this.progress, 20);
-    this.callApi()
-      .then((res) => this.setState({ customers: res }))
-      .catch((err) => console.log(err));
-  }
-
-  callApi = async () => {
-    const response = await fetch('/api/customers');
-    const body = await response.json();
-    return body;
-  };
-
-  progress = () => {
-    const { completed } = this.state;
-    this.setState({ completed: completed >= 100 ? 0 : completed + 1 });
-  };
-
-  handleValueChange = (e) =>{
-    let nextState = {};
-    nextState[e.target.name] = e.target.value
-    this.setState(nextState)
-  }
-
-
-  render() {
-    const { classes } = this.props;
-    const cellList = [
-      '번호',
-      '프로필 이미지',
-      '이름',
-      '생년월일',
-      '성별',
-      '직업',
-      '설정',
-    ];
-    const filteredComponents = (data) =>{
-      data =data.filter((c) =>{
-        return c.name.indexOf(this.state.searchKeyword) > -1
-      })
-      return data.map((c) =>{
-        return <Customer
-        stateRefresh={this.stateRefresh}
-        key={c.id}
-        id={c.id}
-        image={c.image}
-        name={c.name}
-        birthday={c.birthday}
-        gender={c.gender}
-        job={c.job}
-      />
-      })
-    }
-    return (
-      <ThemeProvider theme={theme}>
-        <div className={classes.root}>
-          <Box sx={{ flexGrow: 1 }}>
-            <AppBar position="static">
-              <Toolbar>
-                <IconButton
-                  size="large"
-                  edge="start"
-                  color="inherit"
-                  aria-label="menu"
-                  sx={{ mr: 2 }}
-                >
-                  <MenuIcon />
-                </IconButton>
-                <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-                  Customer Manage System
-                </Typography>
-                <Search>
-                  <SearchIconWrapper>
-                    <div className={classes.SearchIcon}>
-                    <SearchIcon />
-                    </div>
-                  </SearchIconWrapper>
-                  <StyledInputBase
-                    placeholder="검색하기"
-                    inputProps={{ 'aria-label': 'search' }}
-                    name = "searchKeyword"
-                    value = {this.state.searchKeyword}
-                    onChange={this.handleValueChange}
-                  />
-                </Search>
-              </Toolbar>
-            </AppBar>
-          </Box>
-          <Paper className={classes.paper}>
-            <Table className={classes.table}>
-              <TableHead>
-                <TableRow>
-                  {cellList.map((c) => (
-                    <TableCell className={classes.tableHead} key={c}>
-                      {c}
-                    </TableCell>
-                  ))}
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {this.state.customers ? 
-                  filteredComponents(this.state.customers) :
-                  <TableRow>
-                    <TableCell colSpan="6" align="center">
-                      <CircularProgress
-                        className={classes.progress}
-                        variant="determinate"
-                        value={this.state.completed}
-                      />
-                    </TableCell>
-                  </TableRow>
+      handleLogin = async () => {
+        try {
+            const response = await fetch('/api/customers/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    username: this.state.username,
+                    password: this.state.password,
+                }),
+            });
+    
+            const data = await response.json();
+    
+            if (response.ok) {
+                // 로그인 성공 시
+                // 로그인 성공 시
+                localStorage.setItem('login', 'true');
+                localStorage.setItem('username', this.state.username); // 사용자 이름을 저장할 수 있음
+                this.setState({ login: true, errorMessage: '' });
+                
+                // 로그인 성공 후 /api/customers로 데이터 요청
+                const customersResponse = await fetch('/api/customers', {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                });
+    
+                if (customersResponse.ok) {
+                    const customersData = await customersResponse.json();
+                    console.log('Customers:', customersData);
+                    // 데이터 처리 또는 상태 업데이트
+                    this.setState({ customers: customersData });
+                } else {
+                    console.error('Failed to fetch customers data');
                 }
-              </TableBody>
-            </Table>
-          </Paper>
-          <div className={classes.menu}>
-            <CustomerAdd />
-          </div>
-        </div>
-      </ThemeProvider>
-    );
-  }
+            } else {
+                // 로그인 실패 시
+                this.setState({ errorMessage: data.message || 'Login failed' });
+            }
+        } catch (error) {
+            console.error('Error during login:', error);
+            this.setState({ errorMessage: 'An error occurred' });
+        }
+    };
+
+      componentDidMount() {
+        const loginStatus = localStorage.getItem('login');
+        if (loginStatus === 'true') {
+            this.setState({ login: true });
+            // 추가적으로 저장된 사용자 정보나 데이터를 로드할 수 있습니다.
+        }
+    }
+    
+    handleLogout = () => {
+        localStorage.removeItem('login');
+        localStorage.removeItem('username');
+        this.setState({ login: false, username: '', password: '' });
+    };
+    
+
+    render (){
+        const { classes } = this.props;
+        const { login,searchKeyword } = this.state;
+        return (
+            <div className={classes.root}>
+                <div style={{ backgroundImage: `url(${backgroundImage})` }} className={`${classes.backgroundImage} ${login ? classes.backgroundImageLoggedIn : ''}`} />
+                <Box sx={{ flexGrow: 1 }}>
+                    <AppBar position="static">
+                    <Toolbar>
+                        <IconButton
+                        size="large"
+                        edge="start"
+                        color="inherit"
+                        aria-label="menu"
+                        sx={{ mr: 2 }}
+                        >
+                        <MenuIcon />
+                        </IconButton>
+                        <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+                        Customer Manage System
+                        </Typography>
+                        {/* 로그인 유무에 의한 표시 비표시 */}
+                        {login ? (
+                        <React.Fragment>
+                            {/* 로그인 상태일 때 보여질 내용 */}
+                            <Search>
+                                <SearchIconWrapper>
+                                    <div className={classes.SearchIcon}>
+                                        <SearchIcon />
+                                    </div>
+                                </SearchIconWrapper>
+                                <StyledInputBase
+                                    inputProps={{ 'aria-label': 'search' }}
+                                    name="searchKeyword"
+                                    value={this.state.searchKeyword}
+                                    onChange={this.handleValueChange}
+                                />
+                            </Search>
+                            <br/>
+                            <Button variant="contained"color="primary" onClick={this.handleLogout}>
+                                로그아웃
+                            </Button>
+                        </React.Fragment>
+                        ) : (
+                            <AdminLogin handleLogin={this.handleLogin} />
+                        )}
+                    </Toolbar>
+                    </AppBar>
+                </Box>
+                {login ? <AppLogin searchKeyword={searchKeyword}/> : <p></p>}
+            </div>
+        )
+    }
 }
 
 export default withStyles(styles)(App);
