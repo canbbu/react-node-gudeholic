@@ -124,7 +124,6 @@ class App extends React.Component{
     
             if (response.ok) {
                 // 로그인 성공 시
-                // 로그인 성공 시
                 localStorage.setItem('login', 'true');
                 localStorage.setItem('username', this.state.username); // 사용자 이름을 저장할 수 있음
                 this.setState({ login: true, errorMessage: '' });
@@ -139,7 +138,6 @@ class App extends React.Component{
     
                 if (customersResponse.ok) {
                     const customersData = await customersResponse.json();
-                    console.log('Customers:', customersData);
                     // 데이터 처리 또는 상태 업데이트
                     this.setState({ customers: customersData });
                 } else {
@@ -191,7 +189,6 @@ class App extends React.Component{
                         <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
                         Customer Manage System
                         </Typography>
-                        {/* 로그인 유무에 의한 표시 비표시 */}
                         {login ? (
                         <React.Fragment>
                             {/* 로그인 상태일 때 보여질 내용 */}
