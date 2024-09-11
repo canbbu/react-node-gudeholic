@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
-import Customer from './components/Customer';
-import CustomerAdd from './components/CustomerAdd';
+import Item from './components/Item';
+import ItemAdd from './components/ItemAdd';
 import Table from '@mui/material/Table';
 import TableRow from '@mui/material/TableRow';
 import TableCell from '@mui/material/TableCell';
@@ -39,11 +39,11 @@ const styles = theme => ({
   },
 });
 
-class AppLogin extends Component {
+class AppMain extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      customers: '',
+      items: '',
       completed: 0,
       searchKeyword: '', // 상태에 검색어 추가
     };
@@ -51,12 +51,12 @@ class AppLogin extends Component {
 
   stateRefresh = () => {
     this.setState({
-      customers: '',
+      items: '',
       completed: 0,
       searchKeyword: '',
     });
     this.callApi()
-      .then((res) => this.setState({ customers: res }))
+      .then((res) => this.setState({ items: res }))
       .catch((err) => console.log(err));
   };
 
@@ -64,12 +64,12 @@ class AppLogin extends Component {
   componentDidMount() {
     this.timer = setInterval(this.progress, 20);
     this.callApi()
-      .then((res) => this.setState({ customers: res }))
+      .then((res) => this.setState({ items: res }))
       .catch((err) => console.log(err));
   }
 
   callApi = async () => {
-    const response = await fetch('/api/customers');
+    const response = await fetch('/api/items');
     const body = await response.json();
     return body;
   };
@@ -90,30 +90,38 @@ class AppLogin extends Component {
     const { searchKeyword } = this.props;
     data = data.filter((c) => c.name.indexOf(searchKeyword) > -1);
     return data.map((c) => (
-      <Customer
+      <Item
         stateRefresh={this.stateRefresh}
-        key={c.id}
-        id={c.id}
+        key={c._id}
+        id={c._id}
         image={c.image}
         name={c.name}
-        birthday={c.birthday}
-        gender={c.gender}
-        job={c.job}
+        purchasePrice={c.purchasePrice}
+        soldPrice={c.soldPrice}
+        profitPerPerson={c.profitPerPerson}
+        location={c.location}
+        isSold={c.isSold}
+        purchaseDate={c.purchaseDate}
+        upadatedDate={c.upadatedDate}
       />
     ));
   };
 
   render() {
     const { classes } = this.props;
-    const { customers, completed } = this.state;
+    const { items, completed } = this.state;
     const cellList = [
-      '번호',
-      '프로필 이미지',
+      '편집',
+      '이미지',
       '이름',
-      '생년월일',
-      '성별',
-      '직업',
-      '설정',
+      '구매가격',
+      '판매가격',
+      '1인당 이익',
+      '재고 장소',
+      '판매여부',
+      '구매 날짜',
+      '최근 업데이트',
+      '삭제',
     ];
 
     return (
@@ -130,8 +138,8 @@ class AppLogin extends Component {
               </TableRow>
             </TableHead>
             <TableBody>
-              {this.state.customers ? (
-                this.filteredComponents(this.state.customers)
+              {this.state.items ? (
+                this.filteredComponents(this.state.items)
               ) : (
                 <TableRow>
                   <TableCell colSpan="6" align="center">
@@ -147,11 +155,11 @@ class AppLogin extends Component {
           </Table>
         </Paper>
         <div className={classes.menu}>
-          <CustomerAdd />
+          <ItemAdd />
         </div>
       </ThemeProvider>
     );
   }
 }
 
-export default withStyles(styles)(AppLogin);
+export default withStyles(styles)(AppMain);

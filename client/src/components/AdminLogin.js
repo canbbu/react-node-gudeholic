@@ -47,6 +47,7 @@ class AdminLogin extends React.Component {
 
     handleLogin = () => {
         // 부모 컴포넌트의 handleLogin 메서드 호출
+        console.log("AdminLogin.js : " + "username : "+ this.state.userName + "password :" + this.state.password)
         this.props.handleLogin(this.state.userName, this.state.password);
         this.handleClose(); // 로그인 후 다이얼로그 닫기
     };

@@ -1,5 +1,5 @@
 import React from 'react'
-import AppLogin from './AppLogin';
+import AppMain from './AppMain';
 import AppBar from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
 import Toolbar from '@mui/material/Toolbar';
@@ -97,7 +97,7 @@ class App extends React.Component{
             username: '',
             password: '',
             errorMessage: '',
-            customers: [],
+            items: [],
         };
       }
     
@@ -107,16 +107,17 @@ class App extends React.Component{
         });
       };
 
-      handleLogin = async () => {
+      handleLogin = async (username, password) => {
+
         try {
-            const response = await fetch('/api/customers/login', {
+            const response = await fetch('/api/items/login', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
-                    username: this.state.username,
-                    password: this.state.password,
+                    username: username,
+                    password: password,
                 }),
             });
     
@@ -128,20 +129,20 @@ class App extends React.Component{
                 localStorage.setItem('username', this.state.username); // 사용자 이름을 저장할 수 있음
                 this.setState({ login: true, errorMessage: '' });
                 
-                // 로그인 성공 후 /api/customers로 데이터 요청
-                const customersResponse = await fetch('/api/customers', {
+                // 로그인 성공 후 /api/items로 데이터 요청
+                const itemsResponse = await fetch('/api/items', {
                     method: 'GET',
                     headers: {
                         'Content-Type': 'application/json',
                     },
                 });
     
-                if (customersResponse.ok) {
-                    const customersData = await customersResponse.json();
+                if (itemsResponse.ok) {
+                    const itemsData = await itemsResponse.json();
                     // 데이터 처리 또는 상태 업데이트
-                    this.setState({ customers: customersData });
+                    this.setState({ items: itemsData });
                 } else {
-                    console.error('Failed to fetch customers data');
+                    console.error('Failed to fetch items data');
                 }
             } else {
                 // 로그인 실패 시
@@ -187,7 +188,7 @@ class App extends React.Component{
                         <MenuIcon />
                         </IconButton>
                         <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-                        Customer Manage System
+                        GudeHolic System
                         </Typography>
                         {login ? (
                         <React.Fragment>
@@ -216,7 +217,7 @@ class App extends React.Component{
                     </Toolbar>
                     </AppBar>
                 </Box>
-                {login ? <AppLogin searchKeyword={searchKeyword}/> : <p></p>}
+                {login ? <AppMain searchKeyword={searchKeyword}/> : <p></p>}
             </div>
         )
     }

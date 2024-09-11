@@ -14,7 +14,7 @@ const styles = (theme) => ({
     },
 });
 
-class CustomerAdd extends React.Component {
+class ItemAdd extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
@@ -61,7 +61,7 @@ class CustomerAdd extends React.Component {
 
     handleFormSubmit = (e) => {
         e.preventDefault();
-        this.addCustomer()
+        this.additem()
             .then((response) => {
                 console.log(response.data);
                 this.props.stateRefresh();
@@ -82,8 +82,8 @@ class CustomerAdd extends React.Component {
         window.location.reload();
     };
 
-    addCustomer = () => {
-        const url = '/api/customers';
+    additem = () => {
+        const url = '/api/items';
         const formData = new FormData();
         formData.append('image', this.state.file);
         formData.append('name', this.state.userName);
@@ -188,4 +188,4 @@ class CustomerAdd extends React.Component {
     }
 }
 
-export default withStyles(styles)(CustomerAdd);
+export default withStyles(styles)(ItemAdd);
