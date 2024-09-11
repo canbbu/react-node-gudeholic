@@ -1,8 +1,8 @@
 cd management
 npm run dev to run server and react
 
-used MaterialUI, REACT, node.js, mysql
+used MaterialUI, REACT, node.js, MongoDB
 
-Customer Manage System 
+GudeHolic Stock manage system
 
-updated by 2024/sep/7
+updated by 2024/sep/12
