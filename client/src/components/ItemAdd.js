@@ -19,11 +19,11 @@ class ItemAdd extends React.Component {
         super(props);
         this.state = {
             file: null,
-            userName: '',
-            birthday: '',
-            gender: '',
-            job: '',
-            fileName: '',
+            userName: this.props.userName,
+            item: '',
+            purchasePrice: '',
+            location: '',
+            purchaseDate: '',
             open: false,
         };
     }
@@ -37,10 +37,11 @@ class ItemAdd extends React.Component {
     handleClose = () => {
         this.setState({
             file: null,
-            userName: '',
-            birthday: '',
-            gender: '',
-            job: '',
+            userName: this.props.userName,
+            item: '',
+            purchasePrice: '',
+            location: '',
+            purchaseDate: '',
             fileName: '',
             open: false,
         });
@@ -72,10 +73,11 @@ class ItemAdd extends React.Component {
 
         this.setState({
             file: null,
-            userName: '',
-            birthday: '',
-            gender: '',
-            job: '',
+            userName: this.props.userName,
+            item: '',
+            purchasePrice: '',
+            location: '',
+            purchaseDate: '',
             fileName: '',
             open: false,
         });
@@ -85,11 +87,13 @@ class ItemAdd extends React.Component {
     additem = () => {
         const url = '/api/items';
         const formData = new FormData();
+        formData.append('userName', this.props.userName);
         formData.append('image', this.state.file);
-        formData.append('name', this.state.userName);
-        formData.append('birthday', this.state.birthday);
-        formData.append('gender', this.state.gender);
-        formData.append('job', this.state.job);
+        formData.append('item', this.state.item);
+        formData.append('size', this.state.size);
+        formData.append('purchasePrice', this.state.purchasePrice);
+        formData.append('purchaseDate', this.state.purchaseDate);
+        formData.append('location', this.state.location);
 
         const config = {
             headers: {
@@ -108,10 +112,10 @@ class ItemAdd extends React.Component {
                     color="primary"
                     onClick={this.handleClickOpen}
                 >
-                    고객 추가하기
+                    재고 추가하기
                 </Button>
                 <Dialog open={this.state.open} onClose={this.handleClose}>
-                    <DialogTitle>고객 추가</DialogTitle>
+                    <DialogTitle>재고 추가</DialogTitle>
                     <DialogContent>
                         <input
                             className={classes.hidden}
@@ -134,34 +138,42 @@ class ItemAdd extends React.Component {
                         </label>
                         <br />
                         <TextField
-                            label="이름"
+                            label="아이템/브랜드.아이템.색"
                             type="text"
-                            name="userName"
-                            value={this.state.userName}
+                            name="item"
+                            value={this.state.item}
                             onChange={this.handleValueChange}
                         />
                         <br />
                         <TextField
-                            label="생년월일"
+                            label="사이즈/대문자입력"
                             type="text"
-                            name="birthday"
-                            value={this.state.birthday}
+                            name="size"
+                            value={this.state.size}
                             onChange={this.handleValueChange}
                         />
                         <br />
                         <TextField
-                            label="성별"
+                            label="구매가격/xxx엔(혹은 원)"
                             type="text"
-                            name="gender"
-                            value={this.state.gender}
+                            name="purchasePrice"
+                            value={this.state.purchasePrice}
                             onChange={this.handleValueChange}
                         />
                         <br />
                         <TextField
-                            label="직업"
+                            label="재고 장소/ 한국 혹은 일본"
                             type="text"
-                            name="job"
-                            value={this.state.job}
+                            name="location"
+                            value={this.state.location}
+                            onChange={this.handleValueChange}
+                        />
+                        <br />
+                        <TextField
+                            label="구매 날짜/YYYYMMDD"
+                            type="text"
+                            name="purchaseDate"
+                            value={this.state.purchaseDate}
                             onChange={this.handleValueChange}
                         />
                         <br />

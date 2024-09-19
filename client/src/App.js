@@ -99,15 +99,15 @@ class App extends React.Component{
             errorMessage: '',
             items: [],
         };
-      }
+    }
     
-      handleValueChange = (e) => {
-        this.setState({
-          [e.target.name]: e.target.value,
-        });
-      };
+    handleValueChange = (e) => {
+    this.setState({
+        [e.target.name]: e.target.value,
+    });
+    };
 
-      handleLogin = async (username, password) => {
+    handleLogin = async (username, password) => {
 
         try {
             const response = await fetch('/api/items/login', {
@@ -126,8 +126,8 @@ class App extends React.Component{
             if (response.ok) {
                 // 로그인 성공 시
                 localStorage.setItem('login', 'true');
-                localStorage.setItem('username', this.state.username); // 사용자 이름을 저장할 수 있음
-                this.setState({ login: true, errorMessage: '' });
+                localStorage.setItem('username', username); // 사용자 이름을 저장함
+                this.setState({ login: true, username, errorMessage: '' });
                 
                 // 로그인 성공 후 /api/items로 데이터 요청
                 const itemsResponse = await fetch('/api/items', {
@@ -154,11 +154,11 @@ class App extends React.Component{
         }
     };
 
-      componentDidMount() {
+    componentDidMount() {
         const loginStatus = localStorage.getItem('login');
+        const username = localStorage.getItem('username'); // 저장된 username 가져오기
         if (loginStatus === 'true') {
-            this.setState({ login: true });
-            // 추가적으로 저장된 사용자 정보나 데이터를 로드할 수 있습니다.
+          this.setState({ login: true, username }); // username 상태에도 저장
         }
     }
     
@@ -171,7 +171,7 @@ class App extends React.Component{
 
     render (){
         const { classes } = this.props;
-        const { login,searchKeyword } = this.state;
+        const { login, searchKeyword, username } = this.state; // state에서 username 가져옴
         return (
             <div className={classes.root}>
                 <div style={{ backgroundImage: `url(${backgroundImage})` }} className={`${classes.backgroundImage} ${login ? classes.backgroundImageLoggedIn : ''}`} />
@@ -217,7 +217,7 @@ class App extends React.Component{
                     </Toolbar>
                     </AppBar>
                 </Box>
-                {login ? <AppMain searchKeyword={searchKeyword}/> : <p></p>}
+                {login ? <AppMain userName = {username} searchKeyword={searchKeyword}/> : <p></p>}
             </div>
         )
     }

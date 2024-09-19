@@ -96,6 +96,7 @@ class AppMain extends Component {
         id={c._id}
         image={c.image}
         name={c.name}
+        size={c.size}
         purchasePrice={c.purchasePrice}
         soldPrice={c.soldPrice}
         profitPerPerson={c.profitPerPerson}
@@ -103,30 +104,34 @@ class AppMain extends Component {
         isSold={c.isSold}
         purchaseDate={c.purchaseDate}
         upadatedDate={c.upadatedDate}
+        userName = {this.props.userName}
       />
     ));
   };
 
   render() {
-    const { classes } = this.props;
+    const { classes, userName } = this.props;
     const { items, completed } = this.state;
     const cellList = [
       '편집',
       '이미지',
       '이름',
+      '사이즈',
       '구매가격',
       '판매가격',
       '1인당 이익',
       '재고 장소',
       '판매여부',
-      '구매 날짜',
-      '최근 업데이트',
+      '구매 날짜 / YYYYMMDD',
       '삭제',
     ];
 
     return (
       <ThemeProvider theme={theme}>
         <Paper className={classes.paper}>
+        <div className={classes.menu}>
+          <ItemAdd userName = {userName}/>
+        </div>
           <Table className={classes.table}>
             <TableHead>
               <TableRow>
@@ -154,9 +159,6 @@ class AppMain extends Component {
             </TableBody>
           </Table>
         </Paper>
-        <div className={classes.menu}>
-          <ItemAdd />
-        </div>
       </ThemeProvider>
     );
   }

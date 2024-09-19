@@ -11,6 +11,7 @@ class Item extends Component {
       isEditing: false, // 편집 상태를 관리
       image : this.props.image,
       name: this.props.name,
+      size: this.props.size,
       purchasePrice: this.props.purchasePrice,
       soldPrice: this.props.soldPrice,
       profitPerPerson: this.props.profitPerPerson,
@@ -18,6 +19,7 @@ class Item extends Component {
       isSold: this.props.isSold,
       purchaseDate: this.props.purchaseDate,
       upadatedDate: this.props.upadatedDate,
+      userName: this.props.userName,
     };
   }
 
@@ -36,15 +38,6 @@ class Item extends Component {
             .catch((error) => {
                 console.error("There was an error!", error);
             });
-
-        // this.setState({
-        //     name: '',
-        //     birthday: '',
-        //     gender: '',
-        //     job: '',
-        //     open: false,
-        // });
-        //window.location.reload();
   };
 
   updateItem = () => {
@@ -53,13 +46,14 @@ class Item extends Component {
     formData.append('id', this.props.id);
     formData.append('image', this.state.image);
     formData.append('name', this.state.name);
+    formData.append('size', this.state.size);
     formData.append('purchasePrice', this.state.purchasePrice);
     formData.append('soldPrice', this.state.soldPrice);
     formData.append('profitPerPerson', this.state.profitPerPerson);
     formData.append('location', this.state.location);
     formData.append('isSold', this.state.isSold);
     formData.append('purchaseDate', this.state.purchaseDate);
-    formData.append('upadatedDate', this.state.upadatedDate);
+    formData.append('userName', this.props.userName);
 
     for (let [key, value] of formData.entries()) {
         console.log(`${key}: ${value}`);
@@ -85,7 +79,7 @@ class Item extends Component {
   };
 
   render() {
-    const { isEditing, name, purchasePrice, soldPrice, profitPerPerson, isSold,purchaseDate, upadatedDate, location } = this.state;
+    const { isEditing, name, purchasePrice, soldPrice, profitPerPerson, isSold, purchaseDate, location, size } = this.state;
     const {id, image} = this.props
     return (
       <TableRow>
@@ -117,7 +111,19 @@ class Item extends Component {
         <TableCell>
           {isEditing ? (
             <input
-              type="number"
+              type="text"
+              name="size"
+              value={size}
+              onChange={this.handleChange}
+            />
+          ) : (
+            size
+          )}
+        </TableCell>
+        <TableCell>
+          {isEditing ? (
+            <input
+              type="text"
               name="purchasePrice"
               value={purchasePrice}
               onChange={this.handleChange}
@@ -129,7 +135,7 @@ class Item extends Component {
         <TableCell>
           {isEditing ? (
             <input
-              type="number"
+              type="text"
               name="soldPrice"
               value={soldPrice}
               onChange={this.handleChange}
@@ -141,7 +147,7 @@ class Item extends Component {
         <TableCell>
           {isEditing ? (
             <input
-              type="number"
+              type="text"
               name="profitPerPerson"
               value={profitPerPerson}
               onChange={this.handleChange}
@@ -178,25 +184,13 @@ class Item extends Component {
         <TableCell>
           {isEditing ? (
             <input
-              type="number"
+              type="text"
               name="purchaseDate"
               value={purchaseDate}
               onChange={this.handleChange}
             />
           ) : (
             purchaseDate
-          )}
-        </TableCell>
-        <TableCell>
-          {isEditing ? (
-            <input
-              type="number"
-              name="upadatedDate"
-              value={upadatedDate}
-              onChange={this.handleChange}
-            />
-          ) : (
-            upadatedDate
           )}
         </TableCell>
         <TableCell>

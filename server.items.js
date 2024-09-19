@@ -20,6 +20,7 @@ mongoose.connect(conf.mongoURI, { useNewUrlParser: true, useUnifiedTopology: tru
 const itemSchema = new mongoose.Schema({
     image: String,
     name: { type: String, required: true },
+    size : { type: String, required: true },
     purchasePrice: String,
     soldPrice: String,
     profitPerPerson: String,
@@ -28,7 +29,8 @@ const itemSchema = new mongoose.Schema({
     isSold: { type: Boolean, default: false },
     // purchaseDate: { type: Date },
     purchaseDate : String,
-    upadatedDate: { type: Date, default: Date.now }
+    upadatedDate: { type: Date, default: Date.now },
+    userName : String,
 }); 
 
 const Items = mongoose.model('Items', itemSchema);
@@ -38,7 +40,7 @@ const output = {
   dataDisplay: async (req, res) => {
     console.log("dataDisplay in ");
     try {
-      const displays = await Items.find({ isDeleted: false });
+      const displays = await Items.find({ isDeleted: false }).sort({ purchaseDate: -1 });
       res.send(displays);
     } catch (err) {
       res.status(500).send({ error: 'Database error' });
@@ -53,7 +55,7 @@ const process = {
 
     //image case
     //let image = 'https://picsum.photos/64/64';
-    let image = '';
+    let image;
     let prevImage = req.body.image;
     if ((!prevImage) && req.file) {
       image = '/image/' + req.file.filename;
@@ -63,38 +65,21 @@ const process = {
       image = 'https://picsum.photos/64/64'
     }
 
-    // req.body에서 날짜 문자열 가져오기
-    console.log("req.body.purchaseDate : "+ req.body.purchaseDate)
-    const purchaseDateStr = req.body.purchaseDate ? new Date(req.body.purchaseDate) : new Date(); // 예: "2024/09/09"
-    const isSold = req.body.isSold;
-    console.log("purchaseDateStr"+ purchaseDateStr)
 
-    // // 도쿄 시간대로 날짜 문자열을 UTC로 변환
-    // const purchaseDateTokyo = moment.tz(purchaseDateStr, 'YYYYMMDD', 'Asia/Tokyo');
-    // const purchaseDateUTC = purchaseDateTokyo.toISOString(); // UTC 형식으로 
-    
-    // YYYYMMDD 형식으로 변환
-    const year = purchaseDateStr.getFullYear();
-    const month = (purchaseDateStr.getMonth() + 1).toString().padStart(2, '0'); // 월은 0부터 시작하므로 1을 더함
-    const day = purchaseDateStr.getDate().toString().padStart(2, '0');
-
-    // 최종 YYYYMMDD 문자열
-    const formattedDate = `${year}${month}${day}`;
-    console.log("formattedDate"+ formattedDate)
-
-    
 
     const newItem = new Items({
-      image: req.body.image,
-      name: req.body.name,
+      image: image,
+      name : req.body.item,
+      size : req.body.size,
       purchasePrice: req.body.purchasePrice,
-      soldPrice: req.body.soldPrice,
-      profitPerPerson: req.body.profitPerPerson,
+      soldPrice: '',
+      profitPerPerson: '',
       location : req.body.location,
       isDeleted: false,
-      isSold: isSold ? isSold : false, // 조건에 따라 isSold 값을 설정
+      isSold : false, // 조건에 따라 isSold 값을 설정
       purchaseDate: req.body.purchaseDate, // 문자열을 Date 객체로 변환
-      updatedDate: new Date() // 오타 수정: upadatedDate → updatedDate
+      updatedDate: new Date(), // 오타 수정: upadatedDate → updatedDate
+      userName: req.body.userName,
     });
     
     console.log("newItem  : " +newItem)
@@ -112,9 +97,7 @@ const process = {
   dataUpdate: async (req, res) => {
 
     const id = req.body.id;
-    console.log("id :" +id )
-    const { image, name, purchasePrice, soldPrice, profitPerPerson, location, isSold, purchaseDate } = req.body;
-    console.log("image : "+ image )
+    const { image, name, purchasePrice, soldPrice, profitPerPerson, location, isSold, purchaseDate, userName, size } = req.body;
     try {
       // 기존 문서를 찾습니다.
       const item = await Items.findById(id);
@@ -127,6 +110,7 @@ const process = {
       // 문서의 필드를 업데이트합니다.
       item.image = image;
       item.name = name;
+      item.size = size;
       item.purchasePrice = purchasePrice;
       item.soldPrice = soldPrice;
       item.profitPerPerson = profitPerPerson;
@@ -134,6 +118,7 @@ const process = {
       item.isSold = isSold !== undefined ? isSold : false; // 조건에 따라 isSold 값을 설정
       item.purchaseDate = purchaseDate; // 문자열을 Date 객체로 변환
       item.updatedDate = new Date(); // 현재 날짜로 updatedDate 설정
+      item.userName = userName;
 
       // 업데이트된 문서를 저장합니다.
       const updatedItem = await item.save();
