@@ -43,17 +43,17 @@ class AppMain extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      items: '',
+      items: [],
       completed: 0,
-      searchKeyword: '', // 상태에 검색어 추가
-      sortKey: '', //현재 정렬중인 컬럼
-      sortDirection:'asc', //정렬 방향
+      searchKeyword: '', // 검색어
+      sortKey: '',       // 정렬 키
+      sortDirection: 'asc', // 정렬 방향
     };
   }
 
   stateRefresh = () => {
     this.setState({
-      items: '',
+      items: [],
       completed: 0,
       searchKeyword: '',
     });
@@ -61,7 +61,6 @@ class AppMain extends Component {
       .then((res) => this.setState({ items: res }))
       .catch((err) => console.log(err));
   };
-
 
   componentDidMount() {
     this.timer = setInterval(this.progress, 20);
@@ -81,79 +80,51 @@ class AppMain extends Component {
     this.setState({ completed: completed >= 100 ? 0 : completed + 1 });
   };
 
-  // 검색어가 부모로부터 prop으로 전달됨
   componentDidUpdate(prevProps) {
     if (prevProps.searchKeyword !== this.props.searchKeyword) {
       this.setState({ searchKeyword: this.props.searchKeyword });
     }
   }
 
-  filteredComponents = (data) => {
+  // 필터링과 정렬 동시 적용
+  filteredAndSortedData = (data) => {
     const { searchKeyword } = this.props;
-    data = data.filter((c) => c.name.indexOf(searchKeyword) > -1);
-    return data.map((c) => (
-      <Item
-        stateRefresh={this.stateRefresh}
-        key={c._id}
-        id={c._id}
-        image={c.image}
-        name={c.name}
-        size={c.size}
-        purchasePrice={c.purchasePrice}
-        soldPrice={c.soldPrice}
-        profitPerPerson={c.profitPerPerson}
-        location={c.location}
-        isSold={c.isSold}
-        purchaseDate={c.purchaseDate}
-        upadatedDate={c.upadatedDate}
-        userName = {this.props.userName}
-      />
-    ));
-  };
-
-  //정렬을 위한 함수
-  handleSort = (key) =>{
-    const {sortKey, sortDirection} = this.state;
-    let newDirection = 'asc';
-
-    if(sortKey === key){
-      newDirection = sortDirection === 'asc' ? 'desc' : 'asc';
-    }
-
-    this.setState({
-      sortKey : key,
-      sortDirection : newDirection,
-    })
-  }
-
-  // 데이터 정렬
-  sortData = (data) => {
     const { sortKey, sortDirection } = this.state;
 
-    if (!sortKey) return data; // 정렬 키가 없으면 그대로 반환
+    // 1. 검색어를 기준으로 필터링
+    let filteredData = data.filter((c) =>
+      c.name.toLowerCase().includes(searchKeyword.toLowerCase())
+    );
 
-    // 데이터 정렬
-    return data.sort((a, b) => {
-      const valueA = a[sortKey];
-      const valueB = b[sortKey];
+    // 2. 정렬 적용
+    if (sortKey) {
+      filteredData = filteredData.sort((a, b) => {
+        const valueA = a[sortKey];
+        const valueB = b[sortKey];
 
-      if (valueA === undefined || valueB === undefined) return 0; // 값이 없으면 정렬하지 않음
+        if (valueA === undefined || valueB === undefined) return 0;
+        if (sortDirection === 'asc') {
+          return valueA > valueB ? 1 : -1;
+        } else {
+          return valueA < valueB ? 1 : -1;
+        }
+      });
+    }
 
-      if (sortDirection === 'asc') {
-        return valueA > valueB ? 1 : -1;
-      } else {
-        return valueA < valueB ? 1 : -1;
-      }
-    });
+    return filteredData;
   };
 
-  // 데이터 정렬 후 렌더링
+  // 렌더링 함수에서 필터링 및 정렬된 데이터 사용
   renderItems = () => {
     const { items } = this.state;
-    // items가 null 또는 undefined일 경우 빈 배열로 초기화
-    const sortedData = this.sortData(items || []);
+    const filteredAndSortedData = this.filteredAndSortedData(items || []);
 
-    return sortedData.map((item) => (
+    if (!Array.isArray(filteredAndSortedData)) {
+      console.error("filteredAndSortedData is not an array:", filteredAndSortedData);
+      return null;
+    }
+
+    return filteredAndSortedData.map((item) => (
       <Item
         stateRefresh={this.stateRefresh}
         key={item._id}
@@ -173,9 +144,23 @@ class AppMain extends Component {
     ));
   };
 
+  handleSort = (key) => {
+    const { sortKey, sortDirection } = this.state;
+    let newDirection = 'asc';
+
+    if (sortKey === key) {
+      newDirection = sortDirection === 'asc' ? 'desc' : 'asc';
+    }
+
+    this.setState({
+      sortKey: key,
+      sortDirection: newDirection,
+    });
+  };
+
   render() {
     const { classes, userName } = this.props;
-    const { items, completed } = this.state;
+    const { completed } = this.state;
     const cellList = [
       { key: 'edit', label: '편집', sortable: false },
       { key: 'image', label: '이미지', sortable: false },
@@ -193,31 +178,31 @@ class AppMain extends Component {
     return (
       <ThemeProvider theme={theme}>
         <Paper className={classes.paper}>
-        <div className={classes.menu}>
-          <ItemAdd userName = {userName}/>
-        </div>
+          <div className={classes.menu}>
+            <ItemAdd userName={userName} />
+          </div>
           <Table className={classes.table}>
             <TableHead>
               <TableRow>
-              {cellList.map((c) => (
+                {cellList.map((c) => (
                   <TableCell
                     key={c.key}
-                    onClick={c.sortable ? () => this.handleSort(c.key) : null} // 정렬 가능한 컬럼만 클릭 이벤트 추가
-                    style={{ cursor: c.sortable ? 'pointer' : 'default' }} // 클릭 가능한 컬럼은 포인터 커서
+                    onClick={c.sortable ? () => this.handleSort(c.key) : null}
+                    style={{ cursor: c.sortable ? 'pointer' : 'default' }}
                   >
                     {c.label}
                     {this.state.sortKey === c.key
                       ? this.state.sortDirection === 'asc'
-                        ? '🔼' // 오름차순 화살표
-                        : '🔽' // 내림차순 화살표
+                        ? '🔼'
+                        : '🔽'
                       : ''}
                   </TableCell>
                 ))}
               </TableRow>
             </TableHead>
             <TableBody>
-              {items ? (
-                this.renderItems() // 정렬된 아이템 렌더링
+              {this.state.items.length > 0 ? (
+                this.renderItems()
               ) : (
                 <TableRow>
                   <TableCell colSpan="6" align="center">
