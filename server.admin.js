@@ -41,8 +41,8 @@ const process = {
       if (!admin) {
         return res.status(404).send({ error: 'Admin not found' });
       }
-      
-      console.log("password : "+password + "admin.password : " + admin.password);
+
+      console.log("password : "+ password + "admin.password : " + admin.password);
       const isMatch = password === admin.password;
       console.log("isMatch:" + isMatch)
   

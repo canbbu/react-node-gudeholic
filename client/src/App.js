@@ -1,226 +1,162 @@
-import React from 'react'
-import AppMain from './AppMain';
-import AppBar from '@mui/material/AppBar';
-import Box from '@mui/material/Box';
-import Toolbar from '@mui/material/Toolbar';
-import Typography from '@mui/material/Typography';
-import Button from '@mui/material/Button';
-import IconButton from '@mui/material/IconButton';
-import MenuIcon from '@mui/icons-material/Menu';
-import InputBase from '@mui/material/InputBase';
-import SearchIcon from '@mui/icons-material/Search';
-import { styled, alpha } from '@mui/material/styles';
+// App.js
+import React, { useState, useEffect } from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { withStyles } from '@mui/styles';
-import AdminLogin from './components/AdminLogin';
-import { TableCell } from '@mui/material';
-import backgroundImage from './assets/frontendPhoto.jpg'; // Correct path
+import Layout from './Layout';
+import AppMain from './AppMain';
+import JapanPage from './JapanPage'; // 예시 페이지
+import backgroundImage from './assets/frontendPhoto.jpg'; // 올바른 경로로 수정
 
-
-// Define styles
 const styles = theme => ({
-    root: {
-      width: '100%',
-      marginTop: theme.spacing(3),
-      overflowX: 'auto',
-    },
-    backgroundImage: {
-        position: 'absolute',
-        top: 0,
-        left: 0,
-        width: '100%',
-        height: '100%',
-        backgroundImage: 'url(../public/logo192.png)',
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-        zIndex: -1,
-        filter: 'blur(0)', // Default filter for logged-in state
-        transition: 'filter 0.3s ease, opacity 0.3s ease',
-      },
-      backgroundImageLoggedIn: {
-        filter: 'blur(5px)', // Apply blur effect when logged in
-        opacity: 0.5, // Apply transparency when logged in
-      },
-  });
-
-// Styled components
-const Search = styled('div')(({ theme }) => ({
+  root: {
+    width: '100%',
+    marginTop: theme.spacing(3),
+    overflowX: 'auto',
     position: 'relative',
-    borderRadius: theme.shape.borderRadius,
-    backgroundColor: alpha(theme.palette.common.white, 0.15),
-    '&:hover': {
-      backgroundColor: alpha(theme.palette.common.white, 0.25),
-    },
-    marginLeft: 0,
-    width: '100%',
-    [theme.breakpoints.up('sm')]: {
-      marginLeft: theme.spacing(1),
-      width: 'auto',
-    },
-  }));
-  
-  const SearchIconWrapper = styled('div')(({ theme }) => ({
-    padding: theme.spacing(0, 2),
-    height: '100%',
+  },
+  backgroundImage: {
     position: 'absolute',
-    pointerEvents: 'none',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-  }));
-  
-  const StyledInputBase = styled(InputBase)(({ theme }) => ({
-    color: 'inherit',
+    top: 0,
+    left: 0,
     width: '100%',
-    display: 'flex', // Flexbox 사용
-    alignItems: 'center', // 수직 중앙 정렬
-    justifyContent: 'center', // 수평 중앙 정렬
-    '& .MuiInputBase-input': {
-      padding: theme.spacing(1, 1, 1, 0),
-      paddingLeft: `calc(1em + ${theme.spacing(4)})`,
-      transition: theme.transitions.create('width'),
-      [theme.breakpoints.up('sm')]: {
-        width: '12ch',
-        '&:focus': {
-          width: '20ch',
+    height: '100%',
+    backgroundSize: 'cover',
+    backgroundPosition: 'center',
+    zIndex: -1,
+    filter: 'blur(0)', // 기본 필터 (로그인 전)
+    transition: 'filter 0.3s ease, opacity 0.3s ease',
+  },
+  backgroundImageLoggedIn: {
+    filter: 'blur(5px)', // 로그인 시 블러 효과
+    opacity: 0.5, // 로그인 시 투명도 적용
+  },
+});
+
+function App({ classes }) {
+  const [searchKeyword, setSearchKeyword] = useState('');
+  const [login, setLogin] = useState(false);
+  const [username, setUsername] = useState('');
+  const [errorMessage, setErrorMessage] = useState('');
+  const [items, setItems] = useState([]);
+
+  const handleValueChange = (e) => {
+    setSearchKeyword(e.target.value);
+  };
+
+  const handleLogin = async (username, password) => {
+    try {
+        console.log("App.js:" + "username:" + username + "password :" + password) 
+      const response = await fetch('/api/items/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
         },
-      },
-    },
-  }));
+        body: JSON.stringify({
+          username: username,
+          password: password,
+        }),
+      });
 
-class App extends React.Component{
+      const data = await response.json();
 
-    constructor(props) {
-        super(props);
-        this.state = {
-            searchKeyword: '',
-            login: false,
-            username: '',
-            password: '',
-            errorMessage: '',
-            items: [],
-        };
+      if (response.ok) {
+        // 로그인 성공 시
+        localStorage.setItem('login', 'true');
+        localStorage.setItem('username', username); // 사용자 이름 저장
+        setLogin(true);
+        setUsername(username);
+        setErrorMessage('');
+
+        // 로그인 성공 후 데이터 가져오기
+        const itemsResponse = await fetch('/api/items', {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+
+        if (itemsResponse.ok) {
+          const itemsData = await itemsResponse.json();
+          setItems(itemsData);
+        } else {
+          console.error('Failed to fetch items data');
+        }
+      } else {
+        // 로그인 실패 시
+        setErrorMessage(data.message || 'Login failed');
+      }
+    } catch (error) {
+      console.error('Error during login:', error);
+      setErrorMessage('An error occurred');
     }
-    
-    handleValueChange = (e) => {
-    this.setState({
-        [e.target.name]: e.target.value,
-    });
-    };
+  };
 
-    handleLogin = async (username, password) => {
+  const handleLogout = () => {
+    localStorage.removeItem('login');
+    localStorage.removeItem('username');
+    setLogin(false);
+    setUsername('');
+    setSearchKeyword('');
+    setItems([]);
+  };
 
-        try {
-            const response = await fetch('/api/items/login', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    username: username,
-                    password: password,
-                }),
-            });
-    
-            const data = await response.json();
-    
-            if (response.ok) {
-                // 로그인 성공 시
-                localStorage.setItem('login', 'true');
-                localStorage.setItem('username', username); // 사용자 이름을 저장함
-                this.setState({ login: true, username, errorMessage: '' });
-                
-                // 로그인 성공 후 /api/items로 데이터 요청
-                const itemsResponse = await fetch('/api/items', {
-                    method: 'GET',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                });
-    
-                if (itemsResponse.ok) {
-                    const itemsData = await itemsResponse.json();
-                    // 데이터 처리 또는 상태 업데이트
-                    this.setState({ items: itemsData });
-                } else {
-                    console.error('Failed to fetch items data');
-                }
-            } else {
-                // 로그인 실패 시
-                this.setState({ errorMessage: data.message || 'Login failed' });
+  useEffect(() => {
+    const loginStatus = localStorage.getItem('login');
+    const storedUsername = localStorage.getItem('username'); // 저장된 username 가져오기
+    if (loginStatus === 'true') {
+      setLogin(true);
+      setUsername(storedUsername);
+
+      // 로그인 상태면 데이터 가져오기
+      fetch('/api/items')
+        .then((response) => response.json())
+        .then((data) => setItems(data))
+        .catch((err) => console.log(err));
+    }
+  }, []);
+
+  return (
+    <Router>
+      <div className={classes.root}>
+        <div
+          className={`${classes.backgroundImage} ${
+            login ? classes.backgroundImageLoggedIn : ''
+          }`}
+          style={{ backgroundImage: `url(${backgroundImage})` }}
+        />
+        <Routes>
+          <Route
+            path="/"
+            element={
+              <Layout
+                login={login}
+                handleLogout={handleLogout}
+                searchKeyword={searchKeyword}
+                handleValueChange={handleValueChange}
+                handleLogin={handleLogin}
+                username={username}
+              />
             }
-        } catch (error) {
-            console.error('Error during login:', error);
-            this.setState({ errorMessage: 'An error occurred' });
-        }
-    };
-
-    componentDidMount() {
-        const loginStatus = localStorage.getItem('login');
-        const username = localStorage.getItem('username'); // 저장된 username 가져오기
-        if (loginStatus === 'true') {
-          this.setState({ login: true, username }); // username 상태에도 저장
-        }
-    }
-    
-    handleLogout = () => {
-        localStorage.removeItem('login');
-        localStorage.removeItem('username');
-        this.setState({ login: false, username: '', password: '' });
-    };
-    
-
-    render (){
-        const { classes } = this.props;
-        const { login, searchKeyword, username } = this.state; // state에서 username 가져옴
-        return (
-            <div className={classes.root}>
-                <div style={{ backgroundImage: `url(${backgroundImage})` }} className={`${classes.backgroundImage} ${login ? classes.backgroundImageLoggedIn : ''}`} />
-                <Box sx={{ flexGrow: 1 }}>
-                    <AppBar position="static">
-                    <Toolbar>
-                        <IconButton
-                        size="large"
-                        edge="start"
-                        color="inherit"
-                        aria-label="menu"
-                        sx={{ mr: 2 }}
-                        >
-                        <MenuIcon />
-                        </IconButton>
-                        <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-                        GudeHolic System
-                        </Typography>
-                        {login ? (
-                        <React.Fragment>
-                            {/* 로그인 상태일 때 보여질 내용 */}
-                            <Search>
-                                <SearchIconWrapper>
-                                    <div className={classes.SearchIcon}>
-                                        <SearchIcon />
-                                    </div>
-                                </SearchIconWrapper>
-                                <StyledInputBase
-                                    inputProps={{ 'aria-label': 'search' }}
-                                    name="searchKeyword"
-                                    value={this.state.searchKeyword}
-                                    onChange={this.handleValueChange}
-                                />
-                            </Search>
-                            <br/>
-                            <Button variant="contained"color="primary" onClick={this.handleLogout}>
-                                로그아웃
-                            </Button>
-                        </React.Fragment>
-                        ) : (
-                            <AdminLogin handleLogin={this.handleLogin} />
-                        )}
-                    </Toolbar>
-                    </AppBar>
-                </Box>
-                {login ? <AppMain userName = {username} searchKeyword={searchKeyword}/> : <p></p>}
-            </div>
-        )
-    }
+          >
+            <Route
+            index
+            element={login ? (
+                <AppMain
+                userName={username}
+                searchKeyword={searchKeyword}
+                items={items}
+                />
+            ) : (
+                <div>''</div> // 로그인하지 않았을 때 보여줄 내용
+            )}
+            />
+            <Route path="Japan" element={<JapanPage />} />
+            {/* 추가적인 라우트는 여기서 정의 */}
+          </Route>
+        </Routes>
+      </div>
+    </Router>
+  );
 }
 
 export default withStyles(styles)(App);

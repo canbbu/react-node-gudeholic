@@ -1,108 +1,85 @@
-import React from 'react';
-import axios from 'axios'; // axios as default
+import React, { useState } from 'react';
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogTitle from '@mui/material/DialogTitle';
 import DialogContent from '@mui/material/DialogContent';
 import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
-import { withStyles } from '@mui/styles';
+import { makeStyles } from '@mui/styles';
 
-const styles = (theme) => ({
-    hidden: {
-        display: 'none',
-    },
-});
+const useStyles = makeStyles((theme) => ({
+  hidden: {
+    display: 'none',
+  },
+}));
 
-class AdminLogin extends React.Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            userName:'',
-            password:'',
-            open: false,
-        };
+function AdminLogin({ handleLogin }) {
+  const classes = useStyles();
+  const [userName, setUserName] = useState('');
+  const [password, setPassword] = useState('');
+  const [open, setOpen] = useState(false);
+
+  const handleClickOpen = () => {
+    setOpen(true);
+  };
+
+  const handleClose = () => {
+    setUserName('');
+    setPassword('');
+    setOpen(false);
+  };
+
+  const handleValueChange = (e) => {
+    const { name, value } = e.target;
+    if (name === 'userName') {
+      setUserName(value);
+    } else if (name === 'password') {
+      setPassword(value);
     }
+  };
 
-    handleClickOpen = () => {
-        this.setState({
-            open: true,
-        });
-    };
+  const handleLoginClick = () => {
+    console.log(`AdminLogin.js: username: ${userName}, password: ${password}`);
+    handleLogin(userName, password);
+    handleClose(); // 로그인 후 다이얼로그 닫기
+  };
 
-    handleClose = () => {
-        this.setState({
-            userName:'',
-            password:'',
-            open: false,
-        });
-    };
-
-
-    handleValueChange = (e) => {
-        const nextState = {};
-        nextState[e.target.name] = e.target.value;
-        this.setState(nextState);
-    };
-
-    handleLogin = () => {
-        // 부모 컴포넌트의 handleLogin 메서드 호출
-        console.log("AdminLogin.js : " + "username : "+ this.state.userName + "password :" + this.state.password)
-        this.props.handleLogin(this.state.userName, this.state.password);
-        this.handleClose(); // 로그인 후 다이얼로그 닫기
-    };
-
-
-    render() {
-        return (
-            <div>
-                <Button
-                    variant="contained"
-                    color="primary"
-                    onClick={this.handleClickOpen}
-                >
-                    Login
-                </Button>
-                <Dialog open={this.state.open} onClose={this.handleClose}>
-                    <DialogTitle>Login</DialogTitle>
-                    <DialogContent>
-                        <TextField
-                            label="userName"
-                            type="text"
-                            name="userName"
-                            value={this.state.userName}
-                            onChange={this.handleValueChange}
-                        />
-                        <br />
-                        <TextField
-                            label="password"
-                            type="password"
-                            name="password"
-                            value={this.state.password}
-                            onChange={this.handleValueChange}
-                        />
-                        <br />
-                    </DialogContent>
-                    <DialogActions>
-                        <Button
-                            variant="contained"
-                            color="primary"
-                            onClick={this.handleLogin}
-                        >
-                            Login
-                        </Button>
-                        <Button
-                            variant="outlined"
-                            color="secondary"
-                            onClick={this.handleClose}
-                        >
-                            Close
-                        </Button>
-                    </DialogActions>
-                </Dialog>
-            </div>
-        );
-    }
+  return (
+    <div>
+      <Button variant="contained" color="primary" onClick={handleClickOpen}>
+        Login
+      </Button>
+      <Dialog open={open} onClose={handleClose}>
+        <DialogTitle>Login</DialogTitle>
+        <DialogContent>
+          <TextField
+            label="userName"
+            type="text"
+            name="userName"
+            value={userName}
+            onChange={handleValueChange}
+          />
+          <br />
+          <TextField
+            label="password"
+            type="password"
+            name="password"
+            value={password}
+            onChange={handleValueChange}
+          />
+          <br />
+        </DialogContent>
+        <DialogActions>
+          <Button variant="contained" color="primary" onClick={handleLoginClick}>
+            Login
+          </Button>
+          <Button variant="outlined" color="secondary" onClick={handleClose}>
+            Close
+          </Button>
+        </DialogActions>
+      </Dialog>
+    </div>
+  );
 }
 
-export default withStyles(styles)(AdminLogin);
+export default AdminLogin;
