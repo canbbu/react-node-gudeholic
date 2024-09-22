@@ -46,6 +46,8 @@ class AppMain extends Component {
       items: '',
       completed: 0,
       searchKeyword: '', // 상태에 검색어 추가
+      sortKey: '', //현재 정렬중인 컬럼
+      sortDirection:'asc', //정렬 방향
     };
   }
 
@@ -109,21 +111,83 @@ class AppMain extends Component {
     ));
   };
 
+  //정렬을 위한 함수
+  handleSort = (key) =>{
+    const {sortKey, sortDirection} = this.state;
+    let newDirection = 'asc';
+
+    if(sortKey === key){
+      newDirection = sortDirection === 'asc' ? 'desc' : 'asc';
+    }
+
+    this.setState({
+      sortKey : key,
+      sortDirection : newDirection,
+    })
+  }
+
+  // 데이터 정렬
+  sortData = (data) => {
+    const { sortKey, sortDirection } = this.state;
+
+    if (!sortKey) return data; // 정렬 키가 없으면 그대로 반환
+
+    // 데이터 정렬
+    return data.sort((a, b) => {
+      const valueA = a[sortKey];
+      const valueB = b[sortKey];
+
+      if (valueA === undefined || valueB === undefined) return 0; // 값이 없으면 정렬하지 않음
+
+      if (sortDirection === 'asc') {
+        return valueA > valueB ? 1 : -1;
+      } else {
+        return valueA < valueB ? 1 : -1;
+      }
+    });
+  };
+
+  // 데이터 정렬 후 렌더링
+  renderItems = () => {
+    const { items } = this.state;
+    // items가 null 또는 undefined일 경우 빈 배열로 초기화
+    const sortedData = this.sortData(items || []);
+
+    return sortedData.map((item) => (
+      <Item
+        stateRefresh={this.stateRefresh}
+        key={item._id}
+        id={item._id}
+        image={item.image}
+        name={item.name}
+        size={item.size}
+        purchasePrice={item.purchasePrice}
+        soldPrice={item.soldPrice}
+        profitPerPerson={item.profitPerPerson}
+        location={item.location}
+        isSold={item.isSold}
+        purchaseDate={item.purchaseDate}
+        updatedDate={item.updatedDate}
+        userName={this.props.userName}
+      />
+    ));
+  };
+
   render() {
     const { classes, userName } = this.props;
     const { items, completed } = this.state;
     const cellList = [
-      '편집',
-      '이미지',
-      '이름',
-      '사이즈',
-      '구매가격',
-      '판매가격',
-      '1인당 이익',
-      '재고 장소',
-      '판매여부',
-      '구매 날짜 / YYYYMMDD',
-      '삭제',
+      { key: 'edit', label: '편집', sortable: false },
+      { key: 'image', label: '이미지', sortable: false },
+      { key: 'name', label: '이름', sortable: true },
+      { key: 'size', label: '사이즈', sortable: true },
+      { key: 'purchasePrice', label: '구매가격', sortable: true },
+      { key: 'soldPrice', label: '판매가격', sortable: true },
+      { key: 'profitPerPerson', label: '1인당 이익', sortable: true },
+      { key: 'location', label: '재고 장소', sortable: true },
+      { key: 'isSold', label: '판매여부', sortable: true },
+      { key: 'purchaseDate', label: '구매 날짜 / YYYYMMDD', sortable: true },
+      { key: 'delete', label: '삭제', sortable: false },
     ];
 
     return (
@@ -135,23 +199,32 @@ class AppMain extends Component {
           <Table className={classes.table}>
             <TableHead>
               <TableRow>
-                {cellList.map((c) => (
-                  <TableCell className={classes.tableHead} key={c}>
-                    {c}
+              {cellList.map((c) => (
+                  <TableCell
+                    key={c.key}
+                    onClick={c.sortable ? () => this.handleSort(c.key) : null} // 정렬 가능한 컬럼만 클릭 이벤트 추가
+                    style={{ cursor: c.sortable ? 'pointer' : 'default' }} // 클릭 가능한 컬럼은 포인터 커서
+                  >
+                    {c.label}
+                    {this.state.sortKey === c.key
+                      ? this.state.sortDirection === 'asc'
+                        ? '🔼' // 오름차순 화살표
+                        : '🔽' // 내림차순 화살표
+                      : ''}
                   </TableCell>
                 ))}
               </TableRow>
             </TableHead>
             <TableBody>
-              {this.state.items ? (
-                this.filteredComponents(this.state.items)
+              {items ? (
+                this.renderItems() // 정렬된 아이템 렌더링
               ) : (
                 <TableRow>
                   <TableCell colSpan="6" align="center">
                     <CircularProgress
                       className={classes.progress}
                       variant="determinate"
-                      value={this.state.completed}
+                      value={completed}
                     />
                   </TableCell>
                 </TableRow>
