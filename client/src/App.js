@@ -2,9 +2,9 @@
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { withStyles } from '@mui/styles';
-import Layout from './Layout';
+import Layout from './components/Layout';
 import AppMain from './AppMain';
-import JapanPage from './JapanPage'; // 예시 페이지
+import JapanPage from './components/JapanPage'; // 예시 페이지
 import backgroundImage from './assets/frontendPhoto.jpg'; // 올바른 경로로 수정
 
 const styles = theme => ({

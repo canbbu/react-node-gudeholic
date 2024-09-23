@@ -81,6 +81,9 @@ function AppMain({ searchKeyword, userName }) {
     (data) => {
       let filteredData = data.filter((c) => c.name.toLowerCase().includes(searchKeyword.toLowerCase()));
 
+      // filteredData가 올바르게 필터링되었는지 확인
+      console.log("Filtered Data:", filteredData);
+
       if (sortKey) {
         filteredData = filteredData.sort((a, b) => {
           const valueA = a[sortKey];
@@ -94,6 +97,9 @@ function AppMain({ searchKeyword, userName }) {
           }
         });
       }
+
+    // 필터링 후 정렬된 데이터를 확인
+    console.log("Sorted Filtered Data:", filteredData);
 
       return filteredData;
     },
@@ -145,9 +151,9 @@ function AppMain({ searchKeyword, userName }) {
     { key: 'purchasePrice', label: '구매가격', sortable: true },
     { key: 'soldPrice', label: '판매가격', sortable: true },
     { key: 'profitPerPerson', label: '1인당 이익', sortable: true },
+    { key: 'purchaseDate', label: '구매 날짜 / YYYYMMDD', sortable: true },
     { key: 'location', label: '재고 장소', sortable: true },
     { key: 'isSold', label: '판매여부', sortable: true },
-    { key: 'purchaseDate', label: '구매 날짜 / YYYYMMDD', sortable: true },
     { key: 'delete', label: '삭제', sortable: false },
   ];
 
