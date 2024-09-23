@@ -1,16 +1,18 @@
 // App.js
 import React, { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { withStyles } from '@mui/styles';
 import Layout from './components/Layout';
 import AppMain from './AppMain';
-import JapanPage from './components/JapanPage'; // 예시 페이지
+// import JapanPage from './components/JapanPage'; // 예시 페이지
+// import KoreaPage from './components/KoreaPage'; // 예시 페이지
 import backgroundImage from './assets/frontendPhoto.jpg'; // 올바른 경로로 수정
 
 const styles = theme => ({
   root: {
     width: '100%',
     marginTop: theme.spacing(3),
+    minHeight: '100vh', // 화면 전체 높이
     overflowX: 'auto',
     position: 'relative',
   },
@@ -23,12 +25,12 @@ const styles = theme => ({
     backgroundSize: 'cover',
     backgroundPosition: 'center',
     zIndex: -1,
-    filter: 'blur(0)', // 기본 필터 (로그인 전)
+    filter: 'blur(0)', // basic filter (before login)
     transition: 'filter 0.3s ease, opacity 0.3s ease',
   },
   backgroundImageLoggedIn: {
-    filter: 'blur(5px)', // 로그인 시 블러 효과
-    opacity: 0.5, // 로그인 시 투명도 적용
+    filter: 'blur(5px)', // blur effect after login
+    opacity: 0.5, // opacity after login
   },
 });
 
@@ -45,7 +47,7 @@ function App({ classes }) {
 
   const handleLogin = async (username, password) => {
     try {
-        console.log("App.js:" + "username:" + username + "password :" + password) 
+      console.log("App.js: username:", username, "password:", password);
       const response = await fetch('/api/items/login', {
         method: 'POST',
         headers: {
@@ -60,14 +62,14 @@ function App({ classes }) {
       const data = await response.json();
 
       if (response.ok) {
-        // 로그인 성공 시
+        // login success
         localStorage.setItem('login', 'true');
-        localStorage.setItem('username', username); // 사용자 이름 저장
+        localStorage.setItem('username', username); // user name store
         setLogin(true);
         setUsername(username);
         setErrorMessage('');
 
-        // 로그인 성공 후 데이터 가져오기
+        // data fetch after login
         const itemsResponse = await fetch('/api/items', {
           method: 'GET',
           headers: {
@@ -82,7 +84,7 @@ function App({ classes }) {
           console.error('Failed to fetch items data');
         }
       } else {
-        // 로그인 실패 시
+        // login fail
         setErrorMessage(data.message || 'Login failed');
       }
     } catch (error) {
@@ -107,7 +109,7 @@ function App({ classes }) {
       setLogin(true);
       setUsername(storedUsername);
 
-      // 로그인 상태면 데이터 가져오기
+      // data fetch after login
       fetch('/api/items')
         .then((response) => response.json())
         .then((data) => setItems(data))
@@ -138,20 +140,60 @@ function App({ classes }) {
               />
             }
           >
+            {/* initial route  to = / */}
             <Route
-            index
-            element={login ? (
-                <AppMain
-                userName={username}
-                searchKeyword={searchKeyword}
-                items={items}
-                />
-            ) : (
-                <div>''</div> // 로그인하지 않았을 때 보여줄 내용
-            )}
+              index
+              element={
+                login ? (
+                  <Navigate to="/" replace />
+                ) : (
+                  <div>Please Login to use</div>
+                )
+              }
             />
-            <Route path="Japan" element={<JapanPage />} />
-            {/* 추가적인 라우트는 여기서 정의 */}
+            <Route
+              path="/all"
+              element={
+                login ? (
+                  <AppMain
+                    userName={username}
+                    searchKeyword={searchKeyword}
+                    items={items}
+                  />
+                ) : (
+                  <div>Please Login to use</div>
+                )
+              }
+            />
+            <Route
+              path="/japan"
+              element={
+                login ? (
+                  <AppMain
+                    userName={username}
+                    searchKeyword={searchKeyword}
+                    items={items.filter(item => item.location === '일본')}
+                  />
+                ) : (
+                  <div>Please Login to use</div>
+                )
+              }
+            />
+            <Route
+              path="/korea"
+              element={
+                login ? (
+                  <AppMain
+                    userName={username}
+                    searchKeyword={searchKeyword}
+                    items={items.filter(item => item.location === '한국')}
+                  />
+                ) : (
+                  <div>Please Login to use</div>
+                )
+              }
+            />
+            {/* additional Route from here */}
           </Route>
         </Routes>
       </div>

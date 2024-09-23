@@ -7,6 +7,8 @@ import DialogContent from '@mui/material/DialogContent';
 import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
 import { withStyles } from '@mui/styles';
+import Select from '@mui/material/Select';
+import MenuItem from '@mui/material/MenuItem';
 
 const styles = (theme) => ({
     hidden: {
@@ -140,15 +142,30 @@ function ItemAdd({ classes, userName, stateRefresh }) {
                         name="item"
                         value={item}
                         onChange={handleValueChange}
+                        required
                     />
                     <br />
-                    <TextField
-                        label="사이즈/대문자입력"
-                        type="text"
+                    <Select
                         name="size"
                         value={size}
                         onChange={handleValueChange}
-                    />
+                        margin="dense"
+                        displayEmpty
+                        required
+                    >
+                        <MenuItem value="">
+                            <em>Select Size</em>
+                        </MenuItem>
+                        <MenuItem value="S">S</MenuItem>
+                        <MenuItem value="M">M</MenuItem>
+                        <MenuItem value="L">L</MenuItem>
+                        <MenuItem value="XL">XL</MenuItem>
+                        <MenuItem value="XXL">XXL</MenuItem>
+                        <MenuItem value="28">28</MenuItem>
+                        <MenuItem value="30">30</MenuItem>
+                        <MenuItem value="32">32</MenuItem>
+                        <MenuItem value="34">34</MenuItem>
+                    </Select>
                     <br />
                     <TextField
                         label="구매가격/xxx엔(혹은 원)"
@@ -156,15 +173,24 @@ function ItemAdd({ classes, userName, stateRefresh }) {
                         name="purchasePrice"
                         value={purchasePrice}
                         onChange={handleValueChange}
+                        required
                     />
                     <br />
-                    <TextField
-                        label="재고 장소/ 한국 혹은 일본"
-                        type="text"
+                    <Select
+                        label="재고 장소"
                         name="location"
                         value={location}
                         onChange={handleValueChange}
-                    />
+                        margin="dense"
+                        displayEmpty
+                        required
+                        >
+                        <MenuItem value="">
+                            <em>재고 장소</em>
+                        </MenuItem>
+                        <MenuItem value="일본">일본</MenuItem>
+                        <MenuItem value="한국">한국</MenuItem>
+                    </Select>
                     <br />
                     <TextField
                         label="구매 날짜/YYYYMMDD"
@@ -172,6 +198,7 @@ function ItemAdd({ classes, userName, stateRefresh }) {
                         name="purchaseDate"
                         value={purchaseDate}
                         onChange={handleValueChange}
+                        required
                     />
                     <br />
                 </DialogContent>

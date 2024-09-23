@@ -41,7 +41,7 @@ function AdminLogin({ handleLogin }) {
   const handleLoginClick = () => {
     console.log(`AdminLogin.js: username: ${userName}, password: ${password}`);
     handleLogin(userName, password);
-    handleClose(); // 로그인 후 다이얼로그 닫기
+    handleClose(); // dial close after login
   };
 
   return (

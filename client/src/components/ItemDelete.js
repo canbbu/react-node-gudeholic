@@ -16,6 +16,7 @@ const ItemDelete = ({ id, stateRefresh }) => {
     })
       .then(() => stateRefresh())
       .catch((err) => console.log(err));
+      window.location.reload();
   };
 
   return (

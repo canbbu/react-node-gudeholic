@@ -100,6 +100,7 @@ const process = {
     const { image, name, purchasePrice, soldPrice, profitPerPerson, location, isSold, purchaseDate, userName, size } = req.body;
     try {
       // 기존 문서를 찾습니다.
+      console.log("id :" + id)
       const item = await Items.findById(id);
       console.log("item : " + item)
 

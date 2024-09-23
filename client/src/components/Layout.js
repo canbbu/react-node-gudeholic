@@ -1,12 +1,31 @@
 // Layout.js
-import React from 'react';
-import { Outlet } from 'react-router-dom';
-import { AppBar, Toolbar, Typography, IconButton, Button, Box } from '@mui/material';
+import React, { useState } from 'react';
+import { Outlet, useNavigate,Link } from 'react-router-dom';
+import { AppBar, Toolbar, Typography, IconButton, Button, Box, Menu, MenuItem } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 import { styled, alpha } from '@mui/material/styles';
 import InputBase from '@mui/material/InputBase';
 import SearchIcon from '@mui/icons-material/Search';
 import AdminLogin from './AdminLogin';
+import { ToggleButton, ToggleButtonGroup } from '@mui/material';
+
+const styles = theme => ({
+  toggleButtonGroup: {
+    margin: theme.spacing(2),
+    display: 'flex',
+    justifyContent: 'center',
+  },
+  toolbar: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: theme.spacing(1, 2),
+    backgroundColor: '#f5f5f5',
+  },
+  logoutButton: {
+    marginLeft: theme.spacing(2),
+  },
+});
 
 // Styled components
 const Search = styled('div')(({ theme }) => ({
@@ -54,21 +73,84 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
 }));
 
 function Layout({ login, handleLogout, searchKeyword, handleValueChange, handleLogin, username }) {
+  const [anchorEl, setAnchorEl] = useState(null);
+  const [alignment, setAlignment] = useState('ALL');
+  const navigate = useNavigate();
+
+
+  const handleMenuClick = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleMenuClose = () => {
+    setAnchorEl(null);
+  };
+
+  const handleToggleChange = (event, newAlignment) => {
+    setAlignment(newAlignment);
+    handleMenuClose();
+
+    // Navigate to the respective pages based on the selection
+    switch (newAlignment) {
+      case 'ALL':
+        navigate('/all');
+        break;
+      case 'KOREA':
+        navigate('/korea');
+        break;
+      case 'JAPAN':
+        navigate('/japan');
+        break;
+      default:
+        break;
+    }
+  };
+
   return (
     <div>
-      {/* Toolbar가 있는 AppBar */}
+      {/* Toolbar */}
       <Box sx={{ flexGrow: 1 }}>
         <AppBar position="static">
           <Toolbar>
-            <IconButton size="large" edge="start" color="inherit" aria-label="menu" sx={{ mr: 2 }}>
+            <IconButton size="large" edge="start" color="inherit" aria-label="menu" sx={{ mr: 2 }} onClick={handleMenuClick}>
               <MenuIcon />
             </IconButton>
+            <Menu
+              anchorEl={anchorEl}
+              open={Boolean(anchorEl)}
+              onClose={handleMenuClose}
+              keepMounted
+            >
+              {login ? (
+                <MenuItem>
+                  {/* Toggle Button Group in the Menu */}
+                  <ToggleButtonGroup
+                    value={alignment}
+                    exclusive
+                    onChange={handleToggleChange}
+                    aria-label="text alignment"
+                  >
+                    <ToggleButton value="ALL" aria-label="ALL">
+                      ALL
+                    </ToggleButton>
+                    <ToggleButton value="KOREA" aria-label="KOREA">
+                      KOREA
+                    </ToggleButton>
+                    <ToggleButton value="JAPAN" aria-label="JAPAN">
+                      JAPAN
+                    </ToggleButton>
+                  </ToggleButtonGroup>
+                </MenuItem>
+              ) : null}
+            </Menu>
             <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+            <Link to="/" style={{ textDecoration: 'none', color: 'inherit' }}>  
               GudeHolic System
+            </Link>
             </Typography>
             {login ? (
               <React.Fragment>
-                {/* 로그인 상태일 때 툴바에 검색창과 로그아웃 버튼 */}
+                {/* login state toolbar and toggle button  */}
                 <Search>
                   <SearchIconWrapper>
                     <SearchIcon />
@@ -81,7 +163,7 @@ function Layout({ login, handleLogout, searchKeyword, handleValueChange, handleL
                   />
                 </Search>
                 <Button variant="contained" color="primary" onClick={handleLogout}>
-                  로그아웃
+                  Logout
                 </Button>
               </React.Fragment>
             ) : (
@@ -91,7 +173,7 @@ function Layout({ login, handleLogout, searchKeyword, handleValueChange, handleL
         </AppBar>
       </Box>
 
-      {/* 페이지에 따라 변하는 콘텐츠는 Outlet에 렌더링 */}
+      {/* contents convert depends on page render on Outlet */}
       <Outlet />
     </div>
   );

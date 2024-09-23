@@ -39,35 +39,21 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-function AppMain({ searchKeyword, userName }) {
+function AppMain({ searchKeyword, userName, items }) {
   const classes = useStyles();
-  const [items, setItems] = useState([]);
   const [completed, setCompleted] = useState(0);
   const [sortKey, setSortKey] = useState('');
   const [sortDirection, setSortDirection] = useState('asc');
 
   const stateRefresh = useCallback(() => {
-    setItems([]);
-    setCompleted(0);
-    callApi()
-      .then((res) => setItems(res))
-      .catch((err) => console.log(err));
+    // state refresh code
   }, []);
-
-  const callApi = async () => {
-    const response = await fetch('/api/items');
-    const body = await response.json();
-    return body;
-  };
 
   useEffect(() => {
     const timer = setInterval(() => {
       setCompleted((prevCompleted) => (prevCompleted >= 100 ? 0 : prevCompleted + 1));
     }, 20);
-    callApi()
-      .then((res) => setItems(res))
-      .catch((err) => console.log(err));
-
+    
     return () => {
       clearInterval(timer); // Cleanup timer
     };
@@ -79,27 +65,37 @@ function AppMain({ searchKeyword, userName }) {
 
   const filteredAndSortedData = useCallback(
     (data) => {
-      let filteredData = data.filter((c) => c.name.toLowerCase().includes(searchKeyword.toLowerCase()));
-
-      // filteredData가 올바르게 필터링되었는지 확인
-      console.log("Filtered Data:", filteredData);
+      let filteredData = data.filter((c) =>
+        c.name.toLowerCase().includes(searchKeyword.toLowerCase())
+      );
 
       if (sortKey) {
         filteredData = filteredData.sort((a, b) => {
-          const valueA = a[sortKey];
-          const valueB = b[sortKey];
+          let valueA = a[sortKey];
+          let valueB = b[sortKey];
 
-          if (valueA === undefined || valueB === undefined) return 0;
-          if (sortDirection === 'asc') {
-            return valueA > valueB ? 1 : -1;
-          } else {
-            return valueA < valueB ? 1 : -1;
+          if (sortKey === 'purchasePrice' || sortKey === 'soldPrice') {
+            const numericA = parseFloat(valueA.replace(/[^0-9.-]+/g, ''));
+            const numericB = parseFloat(valueB.replace(/[^0-9.-]+/g, ''));
+
+            if (!isNaN(numericA) && !isNaN(numericB)) {
+              return sortDirection === 'asc' ? numericA - numericB : numericB - numericA;
+            }
+
+            if (isNaN(numericA)) return 1;
+            if (isNaN(numericB)) return -1;
+
+            return 0;
           }
+
+          const stringA = String(valueA);
+          const stringB = String(valueB);
+          
+          return sortDirection === 'asc'
+            ? stringA.localeCompare(stringB)
+            : stringB.localeCompare(stringA);
         });
       }
-
-    // 필터링 후 정렬된 데이터를 확인
-    console.log("Sorted Filtered Data:", filteredData);
 
       return filteredData;
     },
@@ -132,11 +128,9 @@ function AppMain({ searchKeyword, userName }) {
         size={item.size}
         purchasePrice={item.purchasePrice}
         soldPrice={item.soldPrice}
-        profitPerPerson={item.profitPerPerson}
         location={item.location}
         isSold={item.isSold}
         purchaseDate={item.purchaseDate}
-        updatedDate={item.updatedDate}
         userName={userName}
         stateRefresh={stateRefresh}
       />
@@ -150,10 +144,9 @@ function AppMain({ searchKeyword, userName }) {
     { key: 'size', label: '사이즈', sortable: true },
     { key: 'purchasePrice', label: '구매가격', sortable: true },
     { key: 'soldPrice', label: '판매가격', sortable: true },
-    { key: 'profitPerPerson', label: '1인당 이익', sortable: true },
-    { key: 'purchaseDate', label: '구매 날짜 / YYYYMMDD', sortable: true },
     { key: 'location', label: '재고 장소', sortable: true },
     { key: 'isSold', label: '판매여부', sortable: true },
+    { key: 'purchaseDate', label: '구매 날짜 / YYYYMMDD', sortable: true },
     { key: 'delete', label: '삭제', sortable: false },
   ];
 
