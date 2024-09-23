@@ -5,4 +5,4 @@ used MaterialUI, REACT, node.js, MongoDB
 
 GudeHolic Stock manage system
 
-updated by 2024/sep/12
+updated by 2024/sep/24
